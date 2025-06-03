@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 루틴 생성기 - 맞춤형 일상 설계</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="bi bi-calendar-heart"></i> 오늘의 루틴 생성기
+                </a>
+                <div class="theme-switch">
+                    <i class="bi bi-sun-fill"></i>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="darkModeToggle">
+                    </div>
+                    <i class="bi bi-moon-fill"></i>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container main-container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card main-card">
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <div class="brand-logo mb-3">
+                                    <i class="bi bi-calendar-heart"></i>
+                                </div>
+                                <h1 class="display-5 fw-bold gradient-text">오늘의 루틴 생성기</h1>
+                                <p class="lead text-muted">당신의 감정과 날씨에 맞는 특별한 하루를 만들어보세요</p>
+                            </div>
+
+                            <div class="api-key-section mb-4" id="apiKeySection">
+                                <label class="form-label">
+                                    <i class="bi bi-key"></i> OpenAI API 키
+                                    <small class="text-muted ms-2">(선택사항)</small>
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" id="apiKey" class="form-control modern-input" placeholder="sk-..." autocomplete="off">
+                                    <button class="btn btn-outline-primary" type="button" onclick="toggleApiKeyVisibility()">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-primary" type="button" onclick="saveApiKey()">
+                                        저장
+                                    </button>
+                                </div>
+                                <small class="text-muted">API 키가 없으면 데모 모드로 작동합니다.</small>
+                            </div>
+
+                            <div class="input-section">
+                                <div class="weather-input mb-4">
+                                    <label class="form-label modern-label">
+                                        <i class="bi bi-cloud-sun"></i> 오늘의 날씨
+                                    </label>
+                                    <select id="weather-type" class="form-select form-select-lg modern-select">
+                                        <option value="">날씨를 선택해주세요</option>
+                                        <option value="맑음">맑음 ☀️</option>
+                                        <option value="흐림">흐림 ☁️</option>
+                                        <option value="비">비 🌧️</option>
+                                        <option value="눈">눈 🌨️</option>
+                                        <option value="안개">안개 🌫️</option>
+                                    </select>
+                                </div>
+
+                                <div class="emotion-input mb-4">
+                                    <label class="form-label modern-label">
+                                        <i class="bi bi-emoji-smile"></i> 현재 감정 상태
+                                    </label>
+                                    <select id="emotion" class="form-select form-select-lg modern-select">
+                                        <option value="">감정을 선택해주세요</option>
+                                        <option value="happy">행복함 😊</option>
+                                        <option value="sad">슬픔 😢</option>
+                                        <option value="angry">화남 😠</option>
+                                        <option value="tired">피곤함 😫</option>
+                                        <option value="excited">신남 🤩</option>
+                                        <option value="anxious">불안함 😰</option>
+                                    </select>
+                                </div>
+
+                                <button onclick="generateRoutine()" class="btn btn-generate w-100 modern-button">
+                                    <span class="button-content">
+                                        <i class="bi bi-stars"></i>
+                                        나만의 루틴 만들기
+                                    </span>
+                                </button>
+                            </div>
+
+                            <div class="routine-result mt-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h3 class="card-title modern-title">
+                                        <i class="bi bi-calendar2-heart"></i> 맞춤형 루틴
+                                    </h3>
+                                    <div class="routine-actions" style="display: none;">
+                                        <button class="btn btn-outline-primary btn-sm modern-button-sm" onclick="saveRoutine()">
+                                            <i class="bi bi-bookmark-heart"></i> 저장
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm modern-button-sm" onclick="shareRoutine()">
+                                            <i class="bi bi-share"></i> 공유
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="routine-display" class="routine-card">
+                                    <div class="text-center text-muted p-5">
+                                        <i class="bi bi-calendar-heart display-4 animated-icon"></i>
+                                        <p class="mt-3">나만의 특별한 루틴이 여기에 표시됩니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            <small>© 2024 오늘의 루틴 생성기. All rights reserved.</small>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- AI 상담사 채팅 섹션 -->
+                <div class="col-lg-8 mx-auto mt-4">
+                    <div class="card chat-card">
+                        <div class="card-body">
+                            <div class="chat-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar me-2">
+                                            <i class="bi bi-robot"></i>
+                                        </div>
+                                        <h3 class="card-title mb-0">AI 상담사</h3>
+                                    </div>
+                                    <button class="btn btn-outline-secondary btn-sm modern-button-sm" onclick="clearChat()">
+                                        <i class="bi bi-trash"></i> 대화 초기화
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="chatMessages" class="chat-messages">
+                                <div class="message ai-message">
+                                    <div class="avatar">
+                                        <i class="bi bi-robot"></i>
+                                    </div>
+                                    <div class="message-content">
+                                        안녕하세요! 저는 당신의 감정을 이해하고 조언해주는 AI 상담사입니다.
+                                        편안한 마음으로 어떤 이야기든 나누어 주세요. 당신의 이야기를 경청하고 함께 고민하며,
+                                        실질적인 도움이 될 수 있는 방법을 찾아보도록 하겠습니다.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="chat-input-area">
+                                <div class="input-group">
+                                    <textarea id="chatInput" class="form-control modern-textarea" 
+                                            placeholder="메시지를 입력하세요... (Shift + Enter로 줄바꿈)"
+                                            rows="1"
+                                            onkeydown="handleKeyPress(event)"></textarea>
+                                    <button class="btn btn-primary modern-button" onclick="sendMessage()">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 활동 상세 정보 모달 -->
+    <div class="modal fade" id="activityDetailModal" tabindex="-1" aria-labelledby="activityDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modern-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="activityDetailModalLabel">활동 상세 정보</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="activityDetailContent">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modern-button-sm" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
